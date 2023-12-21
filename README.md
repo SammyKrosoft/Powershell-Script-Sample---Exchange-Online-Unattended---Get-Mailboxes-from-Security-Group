@@ -55,6 +55,11 @@ See the below PowerShell sample for a complete script example
 
 # PowerShell Sample
 
+We can use the certificate thumbprint, but the cert must be installed on the current user's certificate library.
+If not, we can use the certificate PFX file directly, but that one must be accessible on the machine where the script is executed.
+
+## Using the certificate thumbprint
+
 ```powershell
 $Organization = "YourOrg.onmicrosoft.com"
 $AppID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -72,3 +77,22 @@ $Mailboxes | Set-Mailbox -IssueWarningQuota 24GB -ProhibitSendQuota 25GB -Prohib
 # NOTE: we can also use a ForEach () {} loop:
 Foreach ($Mailbox in $Mailboxes) {Set-Mailbox $Mailbox -IssueWarningQuota 24GB -ProhibitSendQuota 25GB -ProhibitSendReceiveQuota 26GB}
 ```
+
+## Using the certificate file directly
+
+```powershell
+$AppID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+$Tenant = "YourOrg.onmicrosoft.com"
+$CertFilePath = "C:\temp\mycert1.pfx"
+$Certpassword = "qweasdzxc"
+$CertSecurePassword = $Certpassword | ConvertTo-SecureString -Force -AsPlainText
+
+# Connect to Exchange Online this time using the certificate file (need password if you put one on the cert PFX)
+Connect-ExchangeOnline -AppId $AppID -Organization $Tenant -CertificateFilePath $CertFilePath -CertificatePassword $CertSecurePassword
+
+# Next are the same as the previous sample script
+# And then, we would pipe these mailboxes in our quota setting command:
+$Mailboxes | Set-Mailbox -IssueWarningQuota 24GB -ProhibitSendQuota 25GB -ProhibitSendReceiveQuota 26GB 
+ 
+# NOTE: we can also use a ForEach () {} loop:
+Foreach ($Mailbox in $Mailboxes) {Set-Mailbox $Mailbox -IssueWarningQuota 24GB -ProhibitSendQuota 25GB -ProhibitSendReceiveQuota 26GB}
